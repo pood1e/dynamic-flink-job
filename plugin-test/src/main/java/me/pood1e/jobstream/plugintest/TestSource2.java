@@ -12,7 +12,7 @@ import java.util.List;
 public class TestSource2 implements CfgSource<TestData, TestSourceConfig, TestSourceFetchConfig> {
     @Override
     public TestData fetch(TestSourceFetchConfig config) {
-        return TestData.builder().value(config.getValue() + "aaa;s").timestamp(System.currentTimeMillis()).build();
+        return TestData.builder().value(config.getValue() + ";source-modify").timestamp(System.currentTimeMillis()).build();
     }
 
     @Override

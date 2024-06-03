@@ -4,6 +4,7 @@ import me.pood1e.jobstream.configjob.core.config.CfgConfig;
 import me.pood1e.jobstream.configjob.core.inner.DataWrapper;
 import me.pood1e.jobstream.configjob.core.utils.FunctionUtils;
 import me.pood1e.jobstream.configjob.core.utils.PluginClassLoaderUtils;
+import me.pood1e.jobstream.configjob.core.utils.ReflectUtils;
 import me.pood1e.jobstream.pluginbase.CfgAggregator;
 import org.apache.flink.api.common.functions.AggregateFunction;
 
@@ -32,7 +33,11 @@ public class CfgAggregatorInnerImpl implements AggregateFunction<DataWrapper<?>,
         FunctionUtils.assureLoadConfig(cfgConfig.getId(), true);
         Object data = FunctionUtils.callAggCfg(cfgConfig, String.valueOf(this.hashCode()), (cfg, config) -> {
             CfgAggregator aggregator = (CfgAggregator) cfg;
-            return aggregator.add(value.getData(), accumulator.getData(), config);
+            Class<?> dataClass = ReflectUtils.getInterfaceGenericType(cfg.getClass(), CfgAggregator.class, 0);
+            Object valueData = FunctionUtils.transform(value.getData(), dataClass);
+            Class<?> accClass = ReflectUtils.getInterfaceGenericType(cfg.getClass(), CfgAggregator.class, 1);
+            Object accData = FunctionUtils.transform(accumulator.getData(), accClass);
+            return aggregator.add(valueData, accData, config);
         });
         return DataWrapper.builder().data(data).build();
     }
@@ -43,7 +48,9 @@ public class CfgAggregatorInnerImpl implements AggregateFunction<DataWrapper<?>,
         FunctionUtils.assureLoadConfig(cfgConfig.getId(), true);
         Object data = FunctionUtils.callAggCfg(cfgConfig, String.valueOf(this.hashCode()), (cfg, config) -> {
             CfgAggregator aggregator = (CfgAggregator) cfg;
-            return aggregator.getResult(accumulator.getData(), config);
+            Class<?> accClass = ReflectUtils.getInterfaceGenericType(cfg.getClass(), CfgAggregator.class, 1);
+            Object accData = FunctionUtils.transform(accumulator.getData(), accClass);
+            return aggregator.getResult(accData, config);
         });
         return DataWrapper.builder().data(data).build();
     }
@@ -54,7 +61,10 @@ public class CfgAggregatorInnerImpl implements AggregateFunction<DataWrapper<?>,
         FunctionUtils.assureLoadConfig(cfgConfig.getId(), true);
         Object data = FunctionUtils.callAggCfg(cfgConfig, String.valueOf(this.hashCode()), (cfg, config) -> {
             CfgAggregator aggregator = (CfgAggregator) cfg;
-            return aggregator.merge(a.getData(), b.getData(), config);
+            Class<?> accClass = ReflectUtils.getInterfaceGenericType(cfg.getClass(), CfgAggregator.class, 1);
+            Object aAcc = FunctionUtils.transform(a.getData(), accClass);
+            Object bAcc = FunctionUtils.transform(a.getData(), accClass);
+            return aggregator.merge(aAcc, bAcc, config);
         });
         return DataWrapper.builder().data(data).build();
     }
