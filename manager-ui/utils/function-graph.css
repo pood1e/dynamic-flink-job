@@ -1,0 +1,5 @@
+@keyframes running-line {
+    to {
+        stroke-dashoffset: -1000;
+    }
+}

@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: job-manager
+  data:
+    mongodb:
+      host: 192.168.1.28
+      database: job
+  servlet:
+    multipart:
+      max-file-size: 100MB
+job:
+  location: /home/pood1e/workspace/temp-projects/temp-files/job-plugins
+cluster:
+  web: http://192.168.1.28:8081
